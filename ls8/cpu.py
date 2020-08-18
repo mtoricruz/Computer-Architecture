@@ -11,11 +11,16 @@ class CPU:
         self.reg = [0] * 8
         self.pc = 0
 
-    # should accept the address to read and return the value stored there
+    # ram_read takes in the Mem Address Register
+    # MAR contains address that's being read/written to
     def ram_read(self, MAR):
+        # sets Mem Data Register to the MAR 
+        # MDR contains address that was read || the data to write
         MDR = self.ram[MAR]
+        # return the value stored there
         return MDR
-    
+
+    # ram_write should accept value to write (MAR) & address to write to (MDR)
     def ram_write(self, MAR, MDR):
         self.ram[MAR] = MDR
 
@@ -70,9 +75,13 @@ class CPU:
 
         print()
 
+    # Set the value of a register to an integer
     def ldi(self, operand_1, operand_2):
+        # store a value in a register 
+        #   register[register # to store the value in] = the value itself
         self.reg[operand_1] = operand_2
 
+    # Print numeric value stored in the given register
     def prn(self, operand_1):
         print(operand_1)
 
@@ -84,6 +93,7 @@ class CPU:
 
         running = True
         while running:
+            # instruction register = MDR(pc)
             ir = self.ram_read(self.pc)
             operand_1 = self.ram_read(self.pc + 1)
             operand_2 = self.ram_read(self.pc + 2)
@@ -93,10 +103,12 @@ class CPU:
 
             if ir == LDI:
                 self.ldi(operand_1, operand_2)
-                self.pc += 3
 
             if ir == PRN:
                 self.prn(self.reg[operand_1])
-                self.pc += 2
+                
+            num_of_args = ir >> 6
+            size_of_instruction = num_of_args + 1
+            self.pc += size_of_instruction
 
 
