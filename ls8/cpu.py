@@ -31,19 +31,49 @@ class CPU:
 
         # For now, we've just hardcoded a program:
 
-        program = [
-            # From print8.ls8
-            0b10000010, # LDI R0,8
-            0b00000000,
-            0b00001000,
-            0b01000111, # PRN R0
-            0b00000000,
-            0b00000001, # HLT
-        ]
+        # program = [
+        #     # From print8.ls8
+        #     0b10000010, # LDI R0,8
+        #     0b00000000, # REGISTER
+        #     0b00001000, # VALUE 
+        #     0b01000111, # PRN R0
+        #     0b00000000,
+        #     0b00000001, # HLT
+        # ]
+        if len(sys.argv) != 2:
+            print("usage: cpu.py progname")
+            sys.exit(1)
 
-        for instruction in program:
-            self.ram[address] = instruction
-            address += 1
+        try:
+            with open(sys.argv[1]) as f:
+                for line in f:
+                    line = line.strip()
+                    temp = line.split()
+
+                    if len(temp) == 0:
+                        continue
+                    if temp[0][0] == '#':
+                        continue
+
+                    try:
+                        self.ram[address] = int(temp[0], 2)
+
+                    except ValueError:
+                        print(f'Invalid number: {temp[0]}')
+                        sys.exit(1)
+                    
+                    address += 1
+        except FileNotFoundError:
+            print(f"Couldn't open {sys.argv[1]}")
+            sys.exit(2)
+
+        if address == 0:
+            print('Program was empty!')
+            sys.exit(3)
+
+        # for instruction in program:
+        #     self.ram[address] = instruction
+        #     address += 1
 
 
     def alu(self, op, reg_a, reg_b):
@@ -76,6 +106,7 @@ class CPU:
         print()
 
     # Set the value of a register to an integer
+    #              REG #       VALUE
     def ldi(self, operand_1, operand_2):
         # store a value in a register 
         #   register[register # to store the value in] = the value itself
@@ -98,15 +129,15 @@ class CPU:
             operand_1 = self.ram_read(self.pc + 1)
             operand_2 = self.ram_read(self.pc + 2)
 
-            if ir == HLT:
+            if ir == HLT: # HALT
                 running = False
 
-            if ir == LDI:
+            if ir == LDI: # SET_VAL of REGISTER to INT
                 self.ldi(operand_1, operand_2)
 
-            if ir == PRN:
+            if ir == PRN: # PRINT_NUM
                 self.prn(self.reg[operand_1])
-                
+
             num_of_args = ir >> 6
             size_of_instruction = num_of_args + 1
             self.pc += size_of_instruction

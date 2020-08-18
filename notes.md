@@ -24,13 +24,13 @@ with open('prog1') as f:
         line = line.strip()
         temp = line.split()
 
-        if len(temp) == -:
+        if len(temp) == 0:
             continue
         if temp[0] == '#':
             continue
         
         try:
-            memory[address] = int(temp[0])
+            memory[address] = int(temp[0], 2)
 
         except ValueError:
             print(f'Invalid number: {temp[0]}')

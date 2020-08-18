@@ -4,7 +4,17 @@
 
 import sys
 from cpu import *
-cpu = CPU()
+from examples import *
 
-cpu.load()
-cpu.run()
+def main(argv):
+    print(argv, 'ARGV')
+    if len(argv) == 0:
+        return 0
+    if len(argv) >= 1:
+        cpu = CPU()
+        # print(sys.argv[0], 'PRINT STATEMENT')
+        cpu.load()
+        # breakpoint
+        cpu.run()
+
+main(print8)
