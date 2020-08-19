@@ -24,7 +24,7 @@ class CPU:
     def ram_write(self, MAR, MDR):
         self.ram[MAR] = MDR
 
-    def load(self):
+    def load(self, filename):
         """Load a program into memory."""
 
         address = 0
@@ -45,7 +45,7 @@ class CPU:
             sys.exit(1)
 
         try:
-            with open(sys.argv[1]) as f:
+            with open(path) as f:
                 for line in f:
                     line = line.strip()
                     temp = line.split()
@@ -116,11 +116,19 @@ class CPU:
     def prn(self, operand_1):
         print(operand_1)
 
+    def mul(self, operand_1, operand_2):
+        num1 = self.reg[operand_1]
+        num2 = self.reg[operand_2]
+        product = num1 * num2
+        print(product)
+
+
     def run(self):
         """Run the CPU."""
         HLT = 0b00000001
         LDI = 0b10000010
         PRN = 0b01000111
+        MUL = 0b10100010
 
         running = True
         while running:
@@ -137,6 +145,9 @@ class CPU:
 
             if ir == PRN: # PRINT_NUM
                 self.prn(self.reg[operand_1])
+
+            if ir == MUL:
+                self.mul(operand_1, operand_2)
 
             num_of_args = ir >> 6
             size_of_instruction = num_of_args + 1
