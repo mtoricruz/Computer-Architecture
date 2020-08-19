@@ -2,6 +2,8 @@
 
 import sys
 
+# filename = sys.argv[1]
+# print('SYS PRINT', sys.argv)
 class CPU:
     """Main CPU class."""
 
@@ -9,6 +11,7 @@ class CPU:
         """Construct a new CPU."""
         self.ram = [0] * 256
         self.reg = [0] * 8
+        self.reg[7] = 0xf4
         self.pc = 0
 
     # ram_read takes in the Mem Address Register
@@ -26,54 +29,33 @@ class CPU:
 
     def load(self, filename):
         """Load a program into memory."""
-
+        
         address = 0
 
-        # For now, we've just hardcoded a program:
-
-        # program = [
-        #     # From print8.ls8
-        #     0b10000010, # LDI R0,8
-        #     0b00000000, # REGISTER
-        #     0b00001000, # VALUE 
-        #     0b01000111, # PRN R0
-        #     0b00000000,
-        #     0b00000001, # HLT
-        # ]
-        if len(sys.argv) != 2:
+        if len(sys.argv) < 2:
             print("usage: cpu.py progname")
             sys.exit(1)
 
-        try:
-            with open(path) as f:
-                for line in f:
-                    line = line.strip()
-                    temp = line.split()
+        with open(filename) as f:
+            for line in f:
+                line = line.split('#')
+                line = line[0].strip()
 
-                    if len(temp) == 0:
-                        continue
-                    if temp[0][0] == '#':
-                        continue
+                if line == '':
+                    continue
+                try:
+                    value = int(line, 2)
 
-                    try:
-                        self.ram[address] = int(temp[0], 2)
+                except ValueError:
+                    continue
 
-                    except ValueError:
-                        print(f'Invalid number: {temp[0]}')
-                        sys.exit(1)
-                    
-                    address += 1
-        except FileNotFoundError:
-            print(f"Couldn't open {sys.argv[1]}")
-            sys.exit(2)
+                self.ram[address] = value
 
-        if address == 0:
-            print('Program was empty!')
-            sys.exit(3)
-
-        # for instruction in program:
-        #     self.ram[address] = instruction
-        #     address += 1
+                address += 1
+        
+        # except FileNotFoundError:
+        #     print(f'That file does not exist')
+        #     sys.exit()
 
 
     def alu(self, op, reg_a, reg_b):
@@ -82,28 +64,30 @@ class CPU:
         if op == "ADD":
             self.reg[reg_a] += self.reg[reg_b]
         #elif op == "SUB": etc
+        if op == "MUL":
+            self.reg[reg_a] *= self.reg[reg_b]
         else:
             raise Exception("Unsupported ALU operation")
 
-    def trace(self):
-        """
-        Handy function to print out the CPU state. You might want to call this
-        from run() if you need help debugging.
-        """
+    # def trace(self):
+    #     """
+    #     Handy function to print out the CPU state. You might want to call this
+    #     from run() if you need help debugging.
+    #     """
 
-        print(f"TRACE: %02X | %02X %02X %02X |" % (
-            self.pc,
-            #self.fl,
-            #self.ie,
-            self.ram_read(self.pc),
-            self.ram_read(self.pc + 1),
-            self.ram_read(self.pc + 2)
-        ), end='')
+    #     print(f"TRACE: %02X | %02X %02X %02X |" % (
+    #         self.pc,
+    #         #self.fl,
+    #         #self.ie,
+    #         self.ram_read(self.pc),
+    #         self.ram_read(self.pc + 1),
+    #         self.ram_read(self.pc + 2)
+    #     ), end='')
 
-        for i in range(8):
-            print(" %02X" % self.reg[i], end='')
+    #     for i in range(8):
+    #         print(" %02X" % self.reg[i], end='')
 
-        print()
+    #     print()
 
     # Set the value of a register to an integer
     #              REG #       VALUE
@@ -120,7 +104,7 @@ class CPU:
         num1 = self.reg[operand_1]
         num2 = self.reg[operand_2]
         product = num1 * num2
-        print(product)
+        self.reg[operand_1] = product 
 
 
     def run(self):
@@ -129,11 +113,16 @@ class CPU:
         LDI = 0b10000010
         PRN = 0b01000111
         MUL = 0b10100010
+        POP = 0b01000110
+        PUSH = 0b01000101
 
         running = True
         while running:
             # instruction register = MDR(pc)
             ir = self.ram_read(self.pc)
+
+            # self.load(sys.argv[1])
+
             operand_1 = self.ram_read(self.pc + 1)
             operand_2 = self.ram_read(self.pc + 2)
 
@@ -153,4 +142,8 @@ class CPU:
             size_of_instruction = num_of_args + 1
             self.pc += size_of_instruction
 
+
+# cpu = CPU()
+# cpu.load()
+# cpu.run()
 

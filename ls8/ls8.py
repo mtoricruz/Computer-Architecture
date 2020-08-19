@@ -4,7 +4,6 @@
 
 import sys
 from cpu import *
-from examples import *
 
 # def main(argv):
 #     print('ARGV', argv)
@@ -16,7 +15,12 @@ from examples import *
 #         cpu.load()
 #         # breakpoint
 #         cpu.run()
-cpu = CPU()
-cpu.load(sys.argv[1])
-cpu.run()
-# main('examples/print8.ls8')
+if len(sys.argv) <= 1:
+    print(' please provide program file')
+elif len(sys.argv) > 1:
+    file_name = sys.argv[1]
+    print('File name in ls8.py', file_name)
+    cpu = CPU()
+    cpu.load(file_name)
+    cpu.run()
+# main()
