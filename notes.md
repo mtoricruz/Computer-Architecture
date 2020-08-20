@@ -37,3 +37,59 @@ with open('prog1') as f:
             sys.exit(1)
 
         address += 1
+
+# Day 3
+
+'SP' = Stack Pointer [Register 7] aka R7
+
+If you run `python3 ls8.py examples/stack.ls8` you should see the output:
+
+```
+2
+4
+1
+```
+R0: 1           |   FF: 00
+R1: 22          |   FE: 00
+R2: 5           |   .
+.               |   .
+.               |   .
+R7: F4          |   F4: 00 <---- SP  
+                |   F3: 00
+                |   F2: 00
+                |   F1: 00
+
+
+
+# Quick Glossary:
+
+# `PUSH register`
+
+Push the value in the given register on the stack.
+
+1. Decrement the `SP`.
+2. Copy the value in the given register to the address pointed to by
+   `SP`.
+
+# `POP register`
+
+Pop the value at the top of the stack into the given register.
+
+1. Copy the value from the address pointed to by `SP` to the given register.
+2. Increment `SP`.
+
+# `LDI register immediate`
+
+Set the value of a register to an integer.
+
+# `PRN register` pseudo-instruction
+
+Print numeric value stored in the given register.
+
+Print to the console the decimal integer value that is stored in the given
+register.
+
+# `MUL registerA registerB` 
+*This is an instruction handled by the ALU.*
+
+Multiply the values in two registers together and store the result in registerA.
