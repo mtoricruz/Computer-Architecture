@@ -49,6 +49,8 @@ If you run `python3 ls8.py examples/stack.ls8` you should see the output:
 4
 1
 ```
+   Registers    |   Stack
+-----------------------------
 R0: 1           |   FF: 00
 R1: 22          |   FE: 00
 R2: 5           |   .
@@ -93,3 +95,22 @@ register.
 *This is an instruction handled by the ALU.*
 
 Multiply the values in two registers together and store the result in registerA.
+
+# `CALL register`
+
+Calls a subroutine (function) at the address stored in the register.
+
+1. The address of the ***instruction*** _directly after_ `CALL` is
+   pushed onto the stack. This allows us to return to where we left off when the subroutine finishes executing.
+2. The PC is set to the address stored in the given register. We jump to that location in RAM and execute the first instruction in the subroutine. The PC can move forward or backwards from its current location.
+
+# `RET`
+
+Return from subroutine.
+
+Pop the value from the top of the stack and store it in the `PC`.
+
+# `ADD registerA registerB`
+
+Add the value in two registers and store the result in registerA.
+
