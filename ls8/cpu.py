@@ -11,7 +11,7 @@ class CPU:
         """Construct a new CPU."""
         self.ram = [0] * 256
         self.reg = [0] * 8
-        self.reg[7] = 0xf4
+        self.reg[7] = 0xF4
         self.pc = 0
 
     # ram_read takes in the Mem Address Register
@@ -32,9 +32,9 @@ class CPU:
         
         address = 0
 
-        if len(sys.argv) < 2:
-            print("usage: cpu.py progname")
-            sys.exit(1)
+        # if len(sys.argv) < 2:
+        #     print("usage: cpu.py progname")
+        #     sys.exit(1)
 
         with open(filename) as f:
             for line in f:
@@ -106,6 +106,22 @@ class CPU:
         product = num1 * num2
         self.reg[operand_1] = product 
 
+    def push(self):
+        # 1. Decrement the `SP`.
+        self.reg[7] -= 1
+        operand_1 = self.ram_read(self.pc + 1)
+        # 2. Copy the value in the given register to the address pointed to by `SP`.
+        self.ram[self.reg[7]] = self.reg[operand_1]
+    
+    def pop(self):
+        operand_1 = self.ram_read(self.pc + 1)
+        # 1. Copy the value from the address pointed to by `SP` to the given register.
+        self.reg[operand_1] = self.ram_read(self.reg[7])
+        # 2. Increment the SP
+        self.reg[7] += 1
+
+
+
 
     def run(self):
         """Run the CPU."""
@@ -120,7 +136,6 @@ class CPU:
         while running:
             # instruction register = MDR(pc)
             ir = self.ram_read(self.pc)
-
             # self.load(sys.argv[1])
 
             operand_1 = self.ram_read(self.pc + 1)
@@ -137,6 +152,12 @@ class CPU:
 
             if ir == MUL:
                 self.mul(operand_1, operand_2)
+            
+            if ir == POP:
+                self.pop()
+
+            if ir == PUSH:
+                self.push()
 
             num_of_args = ir >> 6
             size_of_instruction = num_of_args + 1
