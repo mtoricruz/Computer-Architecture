@@ -49,15 +49,15 @@ If you run `python3 ls8.py examples/stack.ls8` you should see the output:
 4
 1
 ```
-   Registers    |   Stack
+   Registers    |   RAM
 -----------------------------
-R0: 1           |   FF: 00
-R1: 22          |   FE: 00
+R0: 10          |   FF: 00
+R1: M2P         |   FE: 00
 R2: 5           |   .
 .               |   .
 .               |   .
-R7: F4          |   F4: 00 <---- SP  
-                |   F3: 00
+R7: F3          |   F4: 00  
+                |   F3: R0  <---- SP
                 |   F2: 00
                 |   F1: 00
 
@@ -113,4 +113,31 @@ Pop the value from the top of the stack and store it in the `PC`.
 # `ADD registerA registerB`
 
 Add the value in two registers and store the result in registerA.
+
+# `CMP registerA registerB`
+
+Compare the values in two registers.
+
+* If they are equal, set the Equal `E` flag to 1, otherwise set it to 0.
+
+* If registerA is less than registerB, set the Less-than `L` flag to 1,
+  otherwise set it to 0.
+
+* If registerA is greater than registerB, set the Greater-than `G` flag
+  to 1, otherwise set it to 0.
+
+# `JMP register`
+
+Jump to the address stored in the given register.
+
+Set the `PC` to the address stored in the given register.
+
+# `JEQ register`
+
+If `equal` flag is set (true), jump to the address stored in the given register.
+
+# `JNE register`
+
+If `E` flag is clear (false, 0), jump to the address stored in the given
+register.
 

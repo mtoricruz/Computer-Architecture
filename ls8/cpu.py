@@ -15,6 +15,11 @@ class CPU:
         self.reg[SP] = 0xF4
         self.pc = 0
 
+        # Flags
+        self.E = None
+        self.L = None
+        self.G = None
+
     # ram_read takes in the Mem Address Register
     # MAR contains address that's being read/written to
     def ram_read(self, MAR):
@@ -69,26 +74,6 @@ class CPU:
             self.reg[reg_a] *= self.reg[reg_b]
         else:
             raise Exception("Unsupported ALU operation")
-
-    # def trace(self):
-    #     """
-    #     Handy function to print out the CPU state. You might want to call this
-    #     from run() if you need help debugging.
-    #     """
-
-    #     print(f"TRACE: %02X | %02X %02X %02X |" % (
-    #         self.pc,
-    #         #self.fl,
-    #         #self.ie,
-    #         self.ram_read(self.pc),
-    #         self.ram_read(self.pc + 1),
-    #         self.ram_read(self.pc + 2)
-    #     ), end='')
-
-    #     for i in range(8):
-    #         print(" %02X" % self.reg[i], end='')
-
-    #     print()
 
     # Set the value of a register to an integer
     #              REG #       VALUE
@@ -146,18 +131,60 @@ class CPU:
         self.pc = self.ram_read(return_add)
         self.reg[SP] += 1
 
+    def comp(self, operand_1, operand_2):
+        if self.reg[operand_1] == self.reg[operand_2]:
+            self.E = 1
+        else:
+            self.E = 0
+
+        if self.reg[operand_1] < self.reg[operand_2]:
+            self.L = 1
+        else:
+            self.L = 0
+
+        if self.reg[operand_1] > self.reg[operand_2]:
+            self.G = 1
+        else:
+            self.G = 0
+
+    def jmp(self):
+        # storing the address of a given register in operand_1 variable
+        operand_1 = self.ram_read(self.pc + 1)
+        # Set the `PC` to the address stored in the given register.
+        self.pc = self.reg[operand_1]
+
+    def jeq(self):
+        if self.E == 1:
+            self.jmp()
+        else:
+            self.pc +=2
+
+    def jne(self):
+        if self.E == 0:
+            self.jmp()
+        else:
+            self.pc += 2
+        
+
 
     def run(self):
         """Run the CPU."""
         HLT = 0b00000001
         LDI = 0b10000010
         PRN = 0b01000111
+
         MUL = 0b10100010
         ADD = 0b10100000
+        
         POP = 0b01000110
         PUSH = 0b01000101
         CALL = 0b01010000
         RET = 0b00010001
+
+        CMP = 0b10100111
+        JMP = 0b01010100
+        JEQ = 0b01010101
+        JNE = 0b01010110
 
         running = True
         while running:
@@ -197,6 +224,18 @@ class CPU:
             if ir == RET:
                 self.ret()
 
+            if ir == CMP:
+                self.comp(operand_1, operand_2)
+            
+            if ir == JMP:
+                self.jmp()
+
+            if ir == JEQ:
+                self.jeq()
+
+            if ir == JNE:
+                self.jne()
+
             instruction_sets_pc = (ir >> 4) & 1
             # check to see if 0b00010000 is False
             if instruction_sets_pc == 0:
@@ -205,7 +244,5 @@ class CPU:
                 self.pc += size_of_instruction
 
 
-# cpu = CPU()
-# cpu.load()
-# cpu.run()
+
 
